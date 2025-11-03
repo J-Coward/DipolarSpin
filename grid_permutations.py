@@ -2,6 +2,9 @@ import numpy as np
 from itertools import product
 import pickle
 
+# This file GENERATES and SAVES its result.
+# The output is already saved in "Orbits.pickle" so generally this file does not need to be run again.
+
 ####################################################################################
 # In this file we aim to find the RELAVENT smaller particle configurations to simulate the quantum system and format the result such that our program can use it.
 # This code ONLY works for finding all relevent configuratiuons in a 3x3 grid, however the method may be adapted for other limits (e.g. configurations in a 4x4 grid, 3x2 grid etc.) with considerations of their symmetry
@@ -68,6 +71,8 @@ g = np.moveaxis(g, -1, 0)
 
 ####################################################################################
 
+# Remove all duplicate orbits (configurations connected by dyanmical symmetry) and use a single configuration from each orbit to REPERSENT the dynamics of the entire orbit
+# Remove all single particle configurations (repersentative added back later)
 
 count = 0
 orbits = []
@@ -119,12 +124,11 @@ for i in sorted(onesandzeros, reverse=True):
 # print('Total permutations found = ' + str(unique))
 # print('Unique configurations found = ' + str(len(orbits)))
 
-with open('Orbits.pickle', 'wb') as handle:
-    pickle.dump(orbits, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
 ####################################################################################
 
-#Manually removing duplicate configurations due to translational symmetry or unoccupied rows/columns for a 3x3 grid
+# Listing indicies for manually removing duplicate configurations due to translational symmetry or unoccupied rows/columns for a 3x3 grid
+
+# Manually found indicies of relavent repersentatives
 trans_symm = [0, 16, 1, 24, 2, 62, 3, 12, 6, 50, 37, 7, 68, 26, 28, 14, 31, 39, 74, 43, 80, 4, 20, 41, 52, 58, 86]
 rem_row = [92, 56, 44, 30, 10]
 trans_symm, rem_row = sorted(trans_symm), sorted(rem_row)
@@ -139,25 +143,25 @@ remove_indicies = sorted(remove_indicies)
 # print(len(remove_indicies))
 
 
-with open('Orbits.pickle', 'rb') as handle:
-    b = pickle.load(handle)
-
 # print(type(b))
 # print(type(b[0]))
 # print(type(b[0][0]))
 # print(len(b))
 # print(b)
 
-g = [[1, 0, 0], [9, 1, 2]]
-print(type(np.fliplr(np.rot90(g))))
+# g = [[1, 0, 0], [9, 1, 2]]
+# print(type(np.fliplr(np.rot90(g))))
 
+####################################################################################
 
-#Manually add back in smaller configurations which dont use 
+# Listing and formatting configurations which are smaller then 3x3 to manually add back into our resulting repersentative list
+
+# Manually add back in smaller configurations which dont use 
 symm_2 = [ [[1, 0, 1]], [[1, 1]], [[1, 1, 1]], [[1, 0], [0, 1]], [[1, 1, 1], [1, 1, 1]], [[1, 1], [0, 0], [1, 1]] ]
 symm_4 = [ [[0, 1, 0], [1, 0, 1]], [[1, 1], [1, 0]], [[0, 1, 0], [1, 1, 1]], [[1, 1, 1], [1, 0, 1]] ]
 symm_4_m = [ [[1, 1], [0, 0], [1, 0]], [[1, 1, 0], [0, 0, 1]], [[1, 1], [0, 1], [0, 1]], [[1, 1, 0], [1, 0, 1]], [[1, 1, 1], [1, 1, 0]]  ]
 symm_2_m = [ [[1, 1, 0], [0, 1, 1]], [[1, 0, 0], [0, 0, 1]] ]
-print(len(symm_2) + len(symm_4) + len(symm_2_m) + len(symm_4_m))
+# print(len(symm_2) + len(symm_4) + len(symm_2_m) + len(symm_4_m))
 
 for i in range(len(symm_2)):
     new = []
@@ -202,40 +206,47 @@ for w in new_orbits:
 
 # print(corrected_orbits[-2])
 
-#load previous data
-with open('Orbits.pickle', 'rb') as handle:
-    b = pickle.load(handle)
+####################################################################################
 
-#convert to 3x3 matricies
-# for u in range(len(b)):
-#     b[u] = b[u].reshape((-1, 3, 3))
+# Manage smaller configurations into our repersentatives and formatt the results for further use
 
-#remove orbits with at least one row or column full of 0's (as we simplify or combine these)
+
+# Convert to 3x3 matricies
+for u in range(len(orbits)):
+    orbits[u] = orbits[u].reshape((-1, 3, 3))
+
+# Remove orbits with at least one row or column full of 0's (as we simplify or combine these)
 for i in remove_indicies[::-1]:
-    b.pop(i)
+    orbits.pop(i)
 
-#re add removed orbits with the more optimized correct orbits calculated above
+# Re add removed orbits with the more optimized correct orbits calculated above
 for j in corrected_orbits:
-    b.append(j)
+    orbits.append(j)
 
-#pad all kernels
-# optimized_orbits = []
-# x = 0
-# for r in b:
-#     y = 0
-#     orb = []
-#     for l in r:
-#         kernel = np.pad(l, 1, 'constant', constant_values=((0, 0), (0, 0)))
-#         orb.append(kernel)
-#         y += 1
-#     optimized_orbits.append(orb)
-#     x += 1
+# Pad all configurations with a single layer of unoccupied sites (0's)
+
+padded_orbits = []
+x = 0
+for r in orbits:
+    y = 0
+    orb = []
+    for l in r:
+        kernel = np.pad(l, 1, 'constant', constant_values=((0, 0), (0, 0)))
+        orb.append(kernel)
+        y += 1
+    padded_orbits.append(orb)
+    x += 1
 
 # print(b[0])
 
+####################################################################################
 
-#save orbits
+# Save the orbit repersentatives
+
 with open('Orbits.pickle', 'wb') as handle:
-    pickle.dump(b, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    pickle.dump(padded_orbits, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
+####################################################################################
+####################################################################################
+####################################################################################
