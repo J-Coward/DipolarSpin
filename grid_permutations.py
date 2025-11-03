@@ -6,12 +6,16 @@ import pickle
 # The output is already saved in "Orbits.pickle" so generally this file does not need to be run again.
 
 ####################################################################################
+
+
 # In this file we aim to find the RELAVENT smaller particle configurations to simulate the quantum system and format the result such that our program can use it.
 # This code ONLY works for finding all relevent configuratiuons in a 3x3 grid, however the method may be adapted for other limits (e.g. configurations in a 4x4 grid, 3x2 grid etc.) with considerations of their symmetry
 # This means the output repersents all the dynamics which are possible within a SQUARE 3x3 grid.
 
 # We remove configurations which are DYNAMICALLY EQUIVALENT to others from symmetry (e.g. rotations and reflections) then save the output into a numpy list of 3x3 matricies corresponding to each position in the grid.
 # Rotational and mirror symmetries are found and handled by code, however translational symmetries and configurations which are smaller then a 3x3 grid are manually found/removed then added in the appropiate formatt.
+
+
 ####################################################################################
 
 
@@ -20,7 +24,9 @@ import pickle
 open_sites = 9
 x = np.array([i for i in product(range(2), repeat=open_sites)])
 
+
 ####################################################################################
+
 
 # Build 3x3 symmetry matricies to identify the rotational and mirror symmetries between configurations
 
@@ -28,7 +34,6 @@ x = np.array([i for i in product(range(2), repeat=open_sites)])
 symmertry_matricies = [[np.zeros((9, 9)), 4], [np.kron(np.eye(3), [[0, 0, 1], [0, 1, 0], [1, 0, 0]]), 1]]
 symmertry_matricies[0][0][0, 6], symmertry_matricies[0][0][1, 3], symmertry_matricies[0][0][2, 0], symmertry_matricies[0][0][3, 7], symmertry_matricies[0][0][4, 4], symmertry_matricies[0][0][5, 1], symmertry_matricies[0][0][6, 8], symmertry_matricies[0][0][7, 5], symmertry_matricies[0][0][8, 2] = np.ones((9))
 #do this with tensor products?
-
 
 # Create all symmetry matricies which may create unique configurations
 unique_symm_mat = []
@@ -38,16 +43,15 @@ for i in symmertry_matricies:
         unique_symm_mat.append(o)
         o = np.matmul(o, i[0])
 rot_mat = np.matmul(np.array(unique_symm_mat[0: 3]), unique_symm_mat[4])
-# print(rot_mat)
-# print(len(unique_symm_mat))
 
 for i in rot_mat:
     unique_symm_mat.append(i)
         
 unique_symm_mat = np.array(unique_symm_mat)
-# print(unique_symm_mat.shape)
+
 
 ####################################################################################
+
 
 # Apply EVERY symmetry matrix to EVERY configuration (currently repersented by a 9D vector).
 # Produces an array where every configuration has every other configuration connected by rotational and mirror symmetry grouped together (i.e. every configurations ORBIT)
@@ -57,19 +61,12 @@ l = g
 v = np.swapaxes(g, -1, -2)
 v = x - v
 v = np.swapaxes(v, 0, 1)
-# f = 288
-# print(x[f])
-# print(v[f])
-
-# print(v.shape)
 
 g = np.moveaxis(g, -1, 0)
-# print(g.shape)
-# print(np.unique(v[f], axis=0))
-# print(np.unique(g[f], axis=0))
 
 
 ####################################################################################
+
 
 # Remove all duplicate orbits (configurations connected by dyanmical symmetry) and use a single configuration from each orbit to REPERSENT the dynamics of the entire orbit
 # Remove all single particle configurations (repersentative added back later)
@@ -90,41 +87,19 @@ for config in v:
         orbits.append(np.unique(g[count], axis=0))
     count += 1
     
-#orbits = np.unique(orbits, axis=0)
-
-
-#print(len(orbits))
-# unique = 0
-# for i in orbits:
-#     unique += len(i)
-
-# print('Total permutations found = ' + str(unique))
-
 # Find all configurations with only a single particle then delete them
 t = 0
 onesandzeros = [0]
 for i in orbits: 
     if np.sum(i[0]) == 1:
-        # print(t)
         onesandzeros.append(t)
-        # print(i)
     t += 1
 for i in sorted(onesandzeros, reverse=True):
     del orbits[i]
-    
 
-# for i in orbits: 
-#     if np.sum(i[0]) == 1:
-#         print(i)
-
-# unique = 0
-# for i in orbits:
-#     unique += len(i)
-
-# print('Total permutations found = ' + str(unique))
-# print('Unique configurations found = ' + str(len(orbits)))
 
 ####################################################################################
+
 
 # Listing indicies for manually removing duplicate configurations due to translational symmetry or unoccupied rows/columns for a 3x3 grid
 
@@ -135,33 +110,16 @@ trans_symm, rem_row = sorted(trans_symm), sorted(rem_row)
 remove_indicies = trans_symm + rem_row
 remove_indicies = sorted(remove_indicies)
 
-# print(trans_symm)
-# print(len(trans_symm))
-# print(rem_row)
-# print(len(rem_row))
-# print(remove_indicies)
-# print(len(remove_indicies))
-
-
-# print(type(b))
-# print(type(b[0]))
-# print(type(b[0][0]))
-# print(len(b))
-# print(b)
-
-# g = [[1, 0, 0], [9, 1, 2]]
-# print(type(np.fliplr(np.rot90(g))))
 
 ####################################################################################
 
+
 # Listing and formatting configurations which are smaller then 3x3 to manually add back into our resulting repersentative list
 
-# Manually add back in smaller configurations which dont use 
 symm_2 = [ [[1, 0, 1]], [[1, 1]], [[1, 1, 1]], [[1, 0], [0, 1]], [[1, 1, 1], [1, 1, 1]], [[1, 1], [0, 0], [1, 1]] ]
 symm_4 = [ [[0, 1, 0], [1, 0, 1]], [[1, 1], [1, 0]], [[0, 1, 0], [1, 1, 1]], [[1, 1, 1], [1, 0, 1]] ]
 symm_4_m = [ [[1, 1], [0, 0], [1, 0]], [[1, 1, 0], [0, 0, 1]], [[1, 1], [0, 1], [0, 1]], [[1, 1, 0], [1, 0, 1]], [[1, 1, 1], [1, 1, 0]]  ]
 symm_2_m = [ [[1, 1, 0], [0, 1, 1]], [[1, 0, 0], [0, 0, 1]] ]
-# print(len(symm_2) + len(symm_4) + len(symm_2_m) + len(symm_4_m))
 
 for i in range(len(symm_2)):
     new = []
@@ -204,12 +162,11 @@ for w in new_orbits:
     for p in w:
         corrected_orbits.append(p)
 
-# print(corrected_orbits[-2])
 
 ####################################################################################
 
-# Manage smaller configurations into our repersentatives and formatt the results for further use
 
+# Manage smaller configurations into our repersentatives and format the results for further use
 
 # Convert to 3x3 matricies
 for u in range(len(orbits)):
@@ -237,9 +194,9 @@ for r in orbits:
     padded_orbits.append(orb)
     x += 1
 
-# print(b[0])
 
 ####################################################################################
+
 
 # Save the orbit repersentatives
 
