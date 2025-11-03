@@ -2,15 +2,32 @@ import numpy as np
 from itertools import product
 import pickle
 
+####################################################################################
+# In this file we aim to find the RELAVENT smaller particle configurations to simulate the quantum system and format the result such that our program can use it.
+# This code ONLY works for finding all relevent configuratiuons in a 3x3 grid, however the method may be adapted for other limits (e.g. configurations in a 4x4 grid, 3x2 grid etc.) with considerations of their symmetry
+# This means the output repersents all the dynamics which are possible within a SQUARE 3x3 grid.
+
+# We remove configurations which are DYNAMICALLY EQUIVALENT to others from symmetry (e.g. rotations and reflections) then save the output into a numpy list of 3x3 matricies corresponding to each position in the grid.
+# Rotational and mirror symmetries are found and handled by code, however translational symmetries and configurations which are smaller then a 3x3 grid are manually found/removed then added in the appropiate formatt.
+####################################################################################
+
+
+# Generate all particle configurations within a 3x3 grid, repersenting each as a 9 element string of 0's and 1's corresponding to each sites particle occupancy
+
 open_sites = 9
 x = np.array([i for i in product(range(2), repeat=open_sites)])
+
+####################################################################################
+
+# Build 3x3 symmetry matricies to identify the rotational and mirror symmetries between configurations
 
 #4-fold symmetry, mirror plane ### format of below array is [symmetry matrix, number of opertations to give the identity matrix]
 symmertry_matricies = [[np.zeros((9, 9)), 4], [np.kron(np.eye(3), [[0, 0, 1], [0, 1, 0], [1, 0, 0]]), 1]]
 symmertry_matricies[0][0][0, 6], symmertry_matricies[0][0][1, 3], symmertry_matricies[0][0][2, 0], symmertry_matricies[0][0][3, 7], symmertry_matricies[0][0][4, 4], symmertry_matricies[0][0][5, 1], symmertry_matricies[0][0][6, 8], symmertry_matricies[0][0][7, 5], symmertry_matricies[0][0][8, 2] = np.ones((9))
 #do this with tensor products?
 
-#create all symmetry matricies which may create unique configurations
+
+# Create all symmetry matricies which may create unique configurations
 unique_symm_mat = []
 for i in symmertry_matricies:
     o = i[0]
@@ -27,6 +44,11 @@ for i in rot_mat:
 unique_symm_mat = np.array(unique_symm_mat)
 # print(unique_symm_mat.shape)
 
+####################################################################################
+
+# Apply EVERY symmetry matrix to EVERY configuration (currently repersented by a 9D vector).
+# Produces an array where every configuration has every other configuration connected by rotational and mirror symmetry grouped together (i.e. every configurations ORBIT)
+
 g = np.inner(unique_symm_mat, x)
 l = g
 v = np.swapaxes(g, -1, -2)
@@ -42,6 +64,10 @@ g = np.moveaxis(g, -1, 0)
 # print(g.shape)
 # print(np.unique(v[f], axis=0))
 # print(np.unique(g[f], axis=0))
+
+
+####################################################################################
+
 
 count = 0
 orbits = []
@@ -63,39 +89,40 @@ for config in v:
 
 
 #print(len(orbits))
-unique = 0
-for i in orbits:
-    unique += len(i)
+# unique = 0
+# for i in orbits:
+#     unique += len(i)
 
-print('Total permutations found = ' + str(unique))
+# print('Total permutations found = ' + str(unique))
 
+# Find all configurations with only a single particle then delete them
 t = 0
 onesandzeros = [0]
 for i in orbits: 
     if np.sum(i[0]) == 1:
-        print(t)
+        # print(t)
         onesandzeros.append(t)
-        print(i)
+        # print(i)
     t += 1
-
 for i in sorted(onesandzeros, reverse=True):
     del orbits[i]
     
-for i in orbits: 
-    if np.sum(i[0]) == 1:
-        print(i)
 
-unique = 0
-for i in orbits:
-    unique += len(i)
+# for i in orbits: 
+#     if np.sum(i[0]) == 1:
+#         print(i)
 
-print('Total permutations found = ' + str(unique))
-print('Unique configurations found = ' + str(len(orbits)))
+# unique = 0
+# for i in orbits:
+#     unique += len(i)
+
+# print('Total permutations found = ' + str(unique))
+# print('Unique configurations found = ' + str(len(orbits)))
 
 with open('Orbits.pickle', 'wb') as handle:
     pickle.dump(orbits, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-
+####################################################################################
 
 #Manually removing duplicate configurations due to translational symmetry or unoccupied rows/columns for a 3x3 grid
 trans_symm = [0, 16, 1, 24, 2, 62, 3, 12, 6, 50, 37, 7, 68, 26, 28, 14, 31, 39, 74, 43, 80, 4, 20, 41, 52, 58, 86]
