@@ -359,3 +359,32 @@ def ensemble_Ramsey(samples, time, p_max, r_max, initial_state, N, J, det, ax, a
         results.append(ups[-1])
         #print('Sample ' + str(i) + ' completed')
     return sum(results)/samples
+
+
+####################################################################################
+
+# Same as above but for a unform distribution of particles rather than a radial distribution
+
+def uniform_ensemble_Ramsey(samples, time, density, initial_state, N, J, det, ax, ay, params, pulse, theta=0, phi=0):
+    results = []
+    for i in range(samples):
+
+        # Sample the system size to distribute particles to mimic the particle distribution of the larger system being studied
+        
+        side_length = int(np.sqrt(N/density))+1
+        #print(side_length)
+        #side_length = 2
+
+        # Build Hamiltonian
+        Hamiltonian = construct_H(N, J, det, ax, ay, side_length, params, pulse, theta=theta, phi=phi, Ly=side_length)
+
+        # Evolve system
+        populations = Hamiltonian.evolve(initial_state, 0, time)
+
+        # Extract the probability each particle is in the up state at each time evolution
+        ups = sparse_up_prob(N, populations)
+
+        # Record the final result
+        results.append(ups[-1])
+        #print('Sample ' + str(i) + ' completed')
+    return sum(results)/samples
