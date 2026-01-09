@@ -359,3 +359,13 @@ def ensemble_Ramsey(samples, time, p_max, r_max, initial_state, N, J, det, ax, a
         results.append(ups[-1])
         #print('Sample ' + str(i) + ' completed')
     return sum(results)/samples
+
+
+####################################################################################
+
+# Returns a function which models the proportion of a unform distribution of particles in a lattice built from a particle configuration with some number of particles and empty sites
+
+def gen_poly(symm, particles, empty_sites):
+    def poly(lat_fil): # lat_fil is the density of occupied lattice sites
+        return symm*((1 - lat_fil)**empty_sites)*(lat_fil**(particles - 1))
+    return poly

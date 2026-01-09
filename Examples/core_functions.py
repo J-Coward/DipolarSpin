@@ -26,7 +26,7 @@ rabi_frequency = 2*np.pi*(1/pulse_time)/4 # From RbCs Ramsey Paper https://doi.o
 # J is the interaction strength bewtween nearest neighbor particles
 # xs and ys define how 'stretched' the system is in the x and y directions (could be simplified into 1 ratio variable in future)
 
-def intmatrix(Lx, J, xs=1, ys=1, theta=0, phi=0, Ly='_', plot=False):
+def intmatrix(Lx, J, xs=1, ys=1, theta=0, phi=0, Ly=None, plot=False):
     # Define side length of simulated system as L
     # Handle odd and even side lengths such that every interaction in the system can be described with the interaction matrix
     if Lx % 2 == 1:
@@ -34,7 +34,7 @@ def intmatrix(Lx, J, xs=1, ys=1, theta=0, phi=0, Ly='_', plot=False):
     else:
         Lx += 1
 
-    if Ly == '_': # Defult equal length sides
+    if Ly is None: # Defult equal length sides
         Ly = Lx
     else:
         if Ly % 2 == 1:
@@ -112,8 +112,8 @@ def ran_occupied_sites(N, x, y): # Dimensions of simulated lattice (in units of 
 # interactions is the corresponding interaction matrix (see intmatrix() function) for the system
 # the xy variable is a tuple/list of the dimensions of the interaction matrix which can be ignored as this is defult calculated from 'interactions'
 
-def couples(sites, pairs, interactions, xy='_'):
-    if xy == '_':    
+def couples(sites, pairs, interactions, xy=None):
+    if xy is None:    
         int_x, int_y = len(interactions)//2 + 1, len(interactions[0])//2 + 1 # dimensions of interaction matrix
     else:
         int_x, int_y = xy
@@ -134,8 +134,8 @@ def couples(sites, pairs, interactions, xy='_'):
 # sites describes the occupied sites in the system
 # interactions is the corresponding interaction matrix (see intmatrix() function) for the system
 
-def pbc_couples(sites, pairs, interactions, xy='_'): # Constructs interaction strengths for periodic boundry conditions
-    if xy == '_':    
+def pbc_couples(sites, pairs, interactions, xy=None): # Constructs interaction strengths for periodic boundry conditions
+    if xy is None:    
         int_x, int_y = len(interactions)//2 + 1, len(interactions[0])//2 + 1 #centre of interaction matrix
     else:
         int_x, int_y = xy
@@ -288,9 +288,9 @@ def no_pulse(t, pulse_time, free_time, rabi_frequency):
 # pbc - Calculate interaction terms with periodic boundry conditions, defult FALSE
 # int_plot - Plot the interaction strength matrix, defult false
 
-def construct_H(N, J, det, ax, ay, Lx, params, pulse, theta=0, phi=0, Ly='_', int_plot=False, occupied_sites='_', pbc=False):
+def construct_H(N, J, det, ax, ay, Lx, params, pulse, theta=0, phi=0, Ly=None, int_plot=False, occupied_sites=None, pbc=False):
     basis = spin_basis_general(N=N, pauli=False)
-    if Ly == '_':
+    if Ly is None:
         Ly = 1
 
     # Construct interaction
@@ -302,7 +302,7 @@ def construct_H(N, J, det, ax, ay, Lx, params, pulse, theta=0, phi=0, Ly='_', in
     #above outputs 3 variables (also set J=1 in this function as it xJ at the end anyway) 
 
     #determin sites that are occupied (random or not)
-    if occupied_sites == '_':
+    if occupied_sites is None:
         sites = ran_occupied_sites(N, Lx, Ly)
     else:
         sites = sorted(occupied_sites) #make sure occupied sites is the correct length with numbers under total sites
@@ -388,3 +388,13 @@ def uniform_ensemble_Ramsey(samples, time, density, initial_state, N, J, det, ax
         results.append(ups[-1])
         #print('Sample ' + str(i) + ' completed')
     return sum(results)/samples
+
+
+####################################################################################
+
+# Returns a function which models the proportion of a unform distribution of particles in a lattice built from a particle configuration with some number of particles and empty sites
+
+def gen_poly(symm, particles, empty_sites):
+    def poly(lat_fil): # lat_fil is the density of occupied lattice sites
+        return symm*((1 - lat_fil)**empty_sites)*(lat_fil**(particles - 1))
+    return poly
