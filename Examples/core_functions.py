@@ -67,6 +67,11 @@ def intmatrix(Lx, J, xs=1, ys=1, theta=0, phi=0, Ly=None, plot=False):
     if plot == True:
         fig, ax = plt.subplots()
 
+        ax.xaxis.set_tick_params(labelbottom=False)
+        ax.yaxis.set_tick_params(labelleft=False)
+        ax.set_xticks([])
+        ax.set_yticks([])
+
         mat, xside, yside = intmatrix(Lx, J, Ly=Ly, theta=theta, phi=phi)
         couplings = np.transpose(mat) # Transpose to show x and y axis correctly (this will also switch x and y corrdinate ordering when indexing)
 
@@ -393,8 +398,13 @@ def uniform_ensemble_Ramsey(samples, time, density, initial_state, N, J, det, ax
 ####################################################################################
 
 # Returns a function which models the proportion of a unform distribution of particles in a lattice built from a particle configuration with some number of particles and empty sites
+# Considers the probability a particle configuration appears at each lattice point
+# IMPORTANTLY the factor of 2 is needed for 2 particle configurations (which contribute to the dynamics the most in our simulations) to account for the equal chance that each rotation could point to the opposite direction
+    # e.g. when looking at a specific lattice point, a nearest neighbor pair could be to the left OR the right but the distinction is not made in our generated orbits 
 
 def gen_poly(symm, particles, empty_sites):
+    if particles == 2:
+        symm = 2*symm
     def poly(lat_fil): # lat_fil is the density of occupied lattice sites
-        return symm*((1 - lat_fil)**empty_sites)*(lat_fil**(particles - 1))
+        return symm*((1 - lat_fil)**empty_sites)*(lat_fil**(particles - 1)) 
     return poly

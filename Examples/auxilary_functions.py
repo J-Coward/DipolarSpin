@@ -1,5 +1,6 @@
 import numpy as np
 import random
+from scipy import signal
 
 # Return a radial distribution function with some max density in the center which extends radially based on r_max
 
@@ -23,7 +24,10 @@ def generate_uniform_distribution(lattice_filling):
 ####################################################################################
 
 
-# 
+# Projects a continuous function onto a matrix (where the index of the elements repersent their position)
+# Only tested for polar/radial functions
+# May be used when considering the force on each site of a lattice
+
 
 def prob_mat(function, lattice_dimensions, samples=1, ax=1, ay=1, polar=True):
     
@@ -99,10 +103,17 @@ def config_freqs(configs, filling, N, samples):
     # returns list of averages and list of standard deviations
     return np.mean(frequencies, axis=0), np.std(frequencies, axis=0)
 
-def count_geometry(image, kernel, particle_no='_'):
+
+####################################################################################
+
+
+# Counts how many times the configuration kernel appears in image
+# Does not count when rotated versions of kernal appear
+
+def count_geometry_unvectorized(image, kernel, particle_no=None):
     kernel = np.array(kernel)
     m, n = kernel.shape
-    if particle_no == '_':
+    if particle_no is None:
         particle_no = m*n
         #print(particle_no)
     y, x = image.shape
@@ -116,7 +127,15 @@ def count_geometry(image, kernel, particle_no='_'):
                 found += 1
     return found
 
-def count_geometry(image, kernel, particle_no='_'):
+
+####################################################################################
+
+
+# Counts how many times the configuration kernel (surrounded by a 'layer' of empty sites) appears in image
+# Uses the optimized function convolve2d
+# Does not count when rotated versions of kernal appear
+
+def count_geometry(image, kernel, particle_no=None):
     #if particle_no == '_' :
         #particle_no = np.sum(kernel)
     kernel = np.select([kernel == 0], [-1], kernel)
@@ -125,22 +144,41 @@ def count_geometry(image, kernel, particle_no='_'):
     g = signal.convolve2d(image, kernel)
     return np.count_nonzero(g == particle_no)
 
-def find_geometry(image, kernel, particle_no='_'):
-    #if particle_no == '_' :
+
+####################################################################################
+
+
+# Returns WHERE the configuration kernel appears in images
+# In the output, a 1 indicates the configuration kernel is found there in image
+
+def find_geometry(image, kernel, particle_no=None):
+    #if particle_no is None :
         #particle_no = np.sum(kernel)
     kernel = np.select([kernel == 0], [-1], kernel)
-    kernel = np.pad(kernel, ((1, 1), (1, 1)), 'constant', constant_values=((-1, -1), (-1, -1)))
+    # kernel = np.pad(kernel, ((1, 1), (1, 1)), 'constant', constant_values=((-1, -1), (-1, -1)))
     #print(kernel)
     g = signal.convolve2d(image, kernel, mode='same')
     g = np.select([g != particle_no], [0], g)
     g = np.select([g == particle_no], [1], g)
     return g
 
+
+####################################################################################
+
+
+# Rotates a 2d array
+
 def rotated(array_2d):
     list_of_tuples = zip(*array_2d[::-1])
     return [list(elem) for elem in list_of_tuples]
 
-def pattern_search(image, kernel, particle_no = '_', symmetrical=False):
+
+####################################################################################
+
+
+# Counts how many times the configuration kernal appears in image with consideration of its ROTATIONS
+
+def pattern_search(image, kernel, particle_no=None, symmetrical=False):
     rot = 4
     if symmetrical == True:
         rot = 2
@@ -149,6 +187,13 @@ def pattern_search(image, kernel, particle_no = '_', symmetrical=False):
         patterns_found += count_geometry(image, kernel, particle_no=particle_no)
         kernel = rotated(kernel)
     return patterns_found
+
+
+####################################################################################
+
+
+# Samples a specified 2D discrete distribution
+# distcrete_dist is a matrix where the decimal at each element gives the probability a 1 (may describe an occupied site) appears at that point
 
 def random_config(discrete_dist):
     y, x = discrete_dist.shape
@@ -159,3 +204,5 @@ def random_config(discrete_dist):
             if roll <= discrete_dist[i, n]:
                 config[i, n] = 1
     return config
+
+

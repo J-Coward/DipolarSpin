@@ -184,7 +184,7 @@ for j in corrected_orbits:
 
 padded_orbits = []
 x = 0
-for r in orbits:
+for r in orbits[:-1]: # Treat final single particle configuration seperately below
     y = 0
     orb = []
     for l in r:
@@ -194,6 +194,11 @@ for r in orbits:
     padded_orbits.append(orb)
     x += 1
 
+# Pad the single particle configuration twice
+# Isolates the particle such that there is no overlap with other configurations/orbits
+
+isolated_particle = np.pad(orbits[-1][0], 2, 'constant', constant_values=((0, 0), (0, 0)))
+padded_orbits.append([isolated_particle])
 
 ####################################################################################
 
