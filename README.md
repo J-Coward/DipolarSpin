@@ -95,7 +95,7 @@ To install the tools developed in this work without any surplus files which are 
    git clone https://github.com/J-Coward/DipolarSpin.git --branch Installation
    ```
 
-This ensures you only clone the important tools in <a href="https://github.com/J-Coward/DipolarSpin/blob/main/core_functions.py">*'core_functions.py'*</a>, <a href="https://github.com/J-Coward/DipolarSpin/blob/main/generate_grid_permutations.py">*'generate_grid_permutations.py'*</a> and <a href="https://github.com/J-Coward/DipolarSpin/blob/main/Examples/auxilary_functions.py">*'auxilary_functions.py'*</a>. Additionally, every 3x3 particle configuration orbit *Orbits.pickle* (the result of 'generate_grid_permutations.py'), is included. 
+This ensures you only clone the important tools in <a href="https://github.com/J-Coward/DipolarSpin/blob/main/core_functions.py">*'core_functions.py'*</a>, <a href="https://github.com/J-Coward/DipolarSpin/blob/main/generate_grid_permutations.py">*'generate_grid_permutations.py'*</a> and <a href="https://github.com/J-Coward/DipolarSpin/blob/main/Examples/auxilary_functions.py">*'auxilary_functions.py'*</a>. Additionally, every 3x3 particle configuration orbit *'Orbits.pickle'* (the result of 'generate_grid_permutations.py'), is included. 
 
 Note, we also included *'Orbit_Ramseys.pickle'* in the installation as a more specific result (Ramsey measurements of each orbit under isotropic 1500Hz nearest neighbor interactions over ~20ns timescale) due to its use, relevence and time to generate.
 
