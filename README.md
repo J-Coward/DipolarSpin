@@ -13,7 +13,7 @@
     &middot;
     <a href="https://github.com/J-Coward/DipolarSpin/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     &middot;
-    <a href="https://github.com/J-Coward/DipolarSpin/blob/main/Miscellaneous_work/Simulating_a_Quantum_Simulator.pdf">Project Report</a>
+    <a href="https://github.com/J-Coward/DipolarSpin/blob/main/Simulating_a_Quantum_Simulator.pdf">Project Report</a>
   </p>
 </div>
 
@@ -61,7 +61,7 @@
 ## About The Project
 
 
-This project focuses on simulating the dynamics of 2D spin models with large distributions of particles. In particular, we consider our simulations in the context of an analogue quantum simulator built with dipolar RbCs molecules which can mirror spin interactions with their dipoles. While we present the interactions created by RbCs molecules, the physical considerations and methods to realize such a system are not mentioned in this project, however in my <a href="https://github.com/J-Coward/DipolarSpin/blob/main/Miscellaneous_work/Simulating_a_Quantum_Simulator.pdf">written report</a> I give an outline of the quantum simulator and reference relevant more detailed works.
+This project focuses on simulating the dynamics of 2D spin models with large distributions of particles. In particular, we consider our simulations in the context of an analogue quantum simulator built with dipolar RbCs molecules which can mirror spin interactions with their dipoles. While we present the interactions created by RbCs molecules, the physical considerations and methods to realize such a system are not mentioned in this project, however in my <a href="https://github.com/J-Coward/DipolarSpin/blob/main/Simulating_a_Quantum_Simulator.pdf">written report</a> I give an outline of the quantum simulator and reference relevant more detailed works.
 
 
 We present two methods for simulating large spin models (further explained in <a href="#usage">`Usage`</a>):
@@ -164,7 +164,7 @@ Here I briefly describe the two methods used and compared in this project. The p
 ### <a href="https://github.com/J-Coward/DipolarSpin/blob/main/Examples/Constituent_method.ipynb">Constituent Method</a>
 
 
-This method leverages the dominant dynamics of small configurations of particles at low quantum correlations (low density of particles, short evolution times) to estimate the overall evolution of a quantum spin model without noise or multiple samples. Here I briefly describe this method which is further explained and illustrated in the <a href="https://github.com/J-Coward/DipolarSpin/blob/main/Examples/Constituent_method.ipynb">`Constituent Method Example`</a> or my <a href="https://github.com/J-Coward/DipolarSpin/blob/main/Miscellaneous_work/Simulating_a_Quantum_Simulator.pdf">`project report`</a>. All the examples in this project simulate a **Ramsey measurement** (which can be changed while retaining valid results) on particles with a **low 2D lattice filling** in a **uniform distribution** in a **square** 2D lattice.
+This method leverages the dominant dynamics of small configurations of particles at low quantum correlations (low density of particles, short evolution times) to estimate the overall evolution of a quantum spin model without noise or multiple samples. Here I briefly describe this method which is further explained and illustrated in the <a href="https://github.com/J-Coward/DipolarSpin/blob/main/Examples/Constituent_method.ipynb">`Constituent Method Example`</a> or my <a href="https://github.com/J-Coward/DipolarSpin/blob/main/Simulating_a_Quantum_Simulator.pdf">`project report`</a>. All the examples in this project simulate a **Ramsey measurement** (which can be changed while retaining valid results) on particles with a **low 2D lattice filling** in a **uniform distribution** in a **square** 2D lattice.
 
 
 Firstly, we find the relevant small configurations. Here we use all possible configurations of particles in a 3x3 grid accounting for the vast majority of the low density uniform distribution. Since we are treating the dynamics of each configuration as *independant* they must be sufficiently *isolated* which is incorporated by padding each particle configuration with a layer of empty sites. Also, since **rotations** of each configuration will have the same results (we have isotropic interactions) we group the configurations into **orbits** such that only a **representative** from each must be simulated.
