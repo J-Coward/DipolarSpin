@@ -251,7 +251,7 @@ To conclude, we average the result of the samples for each point to give the ove
 ## Contact
 
 
-Joseph Coward - joe98.jc@gmail.com - <a href="https://www.linkedin.com/in/joseph-coward-ba2864262/?trk=opento_sprofile_goalscard">linkedin</a>
+Joseph Coward - jtc04@outlook.com - <a href="https://www.linkedin.com/in/joseph-coward-ba2864262/?trk=opento_sprofile_goalscard">linkedin</a>
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
